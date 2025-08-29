@@ -1,0 +1,302 @@
+#!/usr/bin/env python3
+"""
+Generate a Letter-size PDF with 9 Investigation Cards (3x3 grid).
+
+INPUT:
+  A file containing exactly 3 YAML documents (the output of your Investigation Card Prompt),
+  either as:
+    - plain multi-doc YAML separated by '---', OR
+    - Markdown with fenced ```yaml code blocks (we'll auto-extract the YAML).
+
+Each card supports:
+  title, description, reward (optional), insight or consequence, cost (for fear/fail).
+
+USAGE:
+  python make_investigation_card_sheet.py cards.yaml -o sheet.pdf
+
+  # Or if you have a Markdown file with YAML code blocks:
+  python make_investigation_card_sheet.py cards.md -o sheet.pdf
+
+OPTIONS:
+  -o/--output        Output PDF path (default: ./investigation_cards.pdf)
+  --rows             Rows per page (default: 3)
+  --cols             Columns per page (default: 3)
+  --copies           How many times to replicate the 3-card set (default: 3 → 9 total)
+  --margin           Page margin in inches (default: 0.25)
+  --gutter           Gutter between cards in inches (default: 0.10)
+  --corner           Corner radius in points (default: 10)
+  --title-size       Title font size (default: 12)
+  --body-size        Body font size (default: 9)
+
+NOTES:
+  - If you provide more than (rows*cols) cards after replication, the script will paginate.
+  - If you provide fewer than 3 cards, the script will cycle through to fill.
+
+Example YAML document (put 3 of these, separated by ---):
+
+---
+title: Success with Hope — Echoes in the Stone
+description: >
+  The carvings on the temple’s foundation stones are far older than the current bird-folk shrine...
+reward: >
+  Gain leverage: proof of the Scars of Verdeth’s involvement, tradable in Fort Dendras.
+insight: >
+  The Scars were here recently; their ash-mark still smolders.
+cost:
+
+"""
+
+import argparse
+import re
+import sys
+from pathlib import Path
+from textwrap import wrap
+
+import yaml
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen.canvas import Canvas
+from reportlab.lib.units import inch
+from reportlab.lib import colors
+from reportlab.pdfbase.pdfmetrics import stringWidth
+
+# ----------------------------
+# Parsing helpers
+# ----------------------------
+
+FENCE_RE = re.compile(r"```(?:yaml)?\s*(.*?)```", re.DOTALL | re.IGNORECASE)
+
+def load_cards_from_file(path: Path):
+    text = path.read_text(encoding="utf-8")
+
+    # Extract YAML code blocks if present
+    blocks = FENCE_RE.findall(text)
+    if blocks:
+        yaml_text = "\n---\n".join(blocks)
+    else:
+        yaml_text = text
+
+    # Parse as multi-doc YAML
+    docs = [d for d in yaml.safe_load_all(yaml_text) if d]
+
+    # Normalize keys and ensure fields exist
+    normalized = []
+    for d in docs:
+        nd = {}
+        for k, v in d.items():
+            if k is None:
+                continue
+            key = str(k).strip().lower()
+            nd[key] = "" if v is None else str(v).strip()
+        # Allow either 'insight' or 'consequence'
+        if "insight" not in nd and "consequence" in nd:
+            nd["insight"] = nd["consequence"]
+        nd.setdefault("title", "Untitled")
+        nd.setdefault("description", "")
+        nd.setdefault("reward", "")
+        nd.setdefault("insight", "")
+        nd.setdefault("cost", "")
+        normalized.append(nd)
+
+    # If fewer than 3, cycle to 3
+    if len(normalized) < 3 and len(normalized) > 0:
+        base = normalized.copy()
+        while len(normalized) < 3:
+            normalized.append(base[len(normalized) % len(base)])
+
+    return normalized
+
+
+# ----------------------------
+# Layout + drawing
+# ----------------------------
+
+def draw_cut_guides(canvas: Canvas, page_w, page_h, margin, gutter, cols, rows):
+    """
+    Light crop/cut guide marks at card boundaries near margins.
+    """
+    canvas.saveState()
+    canvas.setStrokeColor(colors.lightgrey)
+    canvas.setLineWidth(0.3)
+
+    # Vertical guides between columns (inside margins)
+    usable_w = page_w - 2 * margin
+    usable_h = page_h - 2 * margin
+    card_w = (usable_w - (cols - 1) * gutter) / cols
+    card_h = (usable_h - (rows - 1) * gutter) / rows
+
+    # Vertical lines
+    for c in range(1, cols):
+        x = margin + c * (card_w + gutter) - gutter / 2.0
+        canvas.line(x, margin, x, page_h - margin)
+
+    # Horizontal lines
+    for r in range(1, rows):
+        y = margin + r * (card_h + gutter) - gutter / 2.0
+        canvas.line(margin, y, page_w - margin, y)
+
+    canvas.restoreState()
+
+
+def wrap_paragraph(text, font_name, font_size, max_width):
+    """
+    Wrap text to a given pixel width using ReportLab's stringWidth for accuracy.
+    """
+    if not text:
+        return []
+    words = text.replace("\r", "").split()
+    lines = []
+    line = ""
+    for w in words:
+        trial = (line + " " + w).strip()
+        if stringWidth(trial, font_name, font_size) <= max_width:
+            line = trial
+        else:
+            if line:
+                lines.append(line)
+            line = w
+    if line:
+        lines.append(line)
+    return lines
+
+
+def draw_card(canvas: Canvas, x, y, w, h, card, fonts, sizes, corner_radius=10):
+    """
+    Draw a single card within the box at (x,y) with width w and height h.
+    (x,y) is bottom-left corner.
+    """
+    title_font, body_font, bold_font = fonts
+    title_size, body_size = sizes
+
+    # Border
+    canvas.saveState()
+    canvas.setStrokeColor(colors.black)
+    canvas.setLineWidth(1)
+    # Rounded rectangle
+    canvas.roundRect(x, y, w, h, corner_radius, stroke=1, fill=0)
+    canvas.restoreState()
+
+    # Inset padding
+    pad = 10  # points
+    inner_x = x + pad
+    inner_y = y + pad
+    inner_w = w - 2 * pad
+    inner_h = h - 2 * pad
+
+    cursor_y = inner_y + inner_h
+
+    # Title
+    canvas.setFont(title_font, title_size)
+    title = card.get("title", "Untitled")
+    # Slight bold highlight if it includes an outcome prefix
+    canvas.setFont(bold_font if "—" in title or "-" in title else title_font, title_size)
+    title_lines = wrap_paragraph(title, bold_font, title_size, inner_w)
+    for line in title_lines:
+        cursor_y -= title_size * 1.2
+        canvas.drawString(inner_x, cursor_y, line)
+
+    # Thin divider
+    cursor_y -= 4
+    canvas.setLineWidth(0.5)
+    canvas.setStrokeColor(colors.grey)
+    canvas.line(inner_x, cursor_y, inner_x + inner_w, cursor_y)
+    cursor_y -= 6
+
+    # Body sections in a consistent order
+    sections = [
+        ("description", "Description"),
+        ("reward", "Reward"),
+        ("insight", "Insight"),
+        ("cost", "Cost"),
+    ]
+
+    canvas.setFont(body_font, body_size)
+    for key, label in sections:
+        val = card.get(key, "")
+        if not val:
+            continue
+        # Label
+        lbl = f"{label}:"
+        lbl_w = stringWidth(lbl, bold_font, body_size)
+        cursor_y -= body_size * 1.15
+        canvas.setFont(bold_font, body_size)
+        canvas.drawString(inner_x, cursor_y, lbl)
+        # Text wrapped to width
+        canvas.setFont(body_font, body_size)
+        lines = wrap_paragraph(val, body_font, body_size, inner_w)
+        for ln in lines:
+            cursor_y -= body_size * 1.15
+            if cursor_y < inner_y + body_size:  # simple overflow guard
+                # Truncate with ellipsis if overflow
+                ell = "…"
+                ell_w = stringWidth(ell, body_font, body_size)
+                canvas.drawString(inner_x, inner_y + body_size, ell)
+                return
+            canvas.drawString(inner_x, cursor_y, ln)
+
+
+def paginate(cards, rows, cols):
+    per_page = rows * cols
+    for i in range(0, len(cards), per_page):
+        yield cards[i:i + per_page]
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("input", type=Path, help="Path to YAML/Markdown with 3 card docs")
+    ap.add_argument("-o", "--output", type=Path, default=Path("investigation_cards.pdf"))
+    ap.add_argument("--rows", type=int, default=3)
+    ap.add_argument("--cols", type=int, default=3)
+    ap.add_argument("--copies", type=int, default=3,
+                    help="Replicate the 3-card set this many times (default 3 → 9 total)")
+    ap.add_argument("--margin", type=float, default=0.25, help="Page margin in inches")
+    ap.add_argument("--gutter", type=float, default=0.10, help="Gutter between cards in inches")
+    ap.add_argument("--corner", type=float, default=10, help="Corner radius in points")
+    ap.add_argument("--title-size", type=int, default=12)
+    ap.add_argument("--body-size", type=int, default=9)
+    args = ap.parse_args()
+
+    base_cards = load_cards_from_file(args.input)
+    if not base_cards:
+        print("No cards parsed. Make sure your file contains 3 YAML documents.", file=sys.stderr)
+        sys.exit(1)
+
+    # Replicate the 3 cards N times to fill the sheet(s)
+    cards = []
+    for _ in range(max(1, args.copies)):
+        cards.extend(base_cards)
+
+    # Page + grid math
+    page_w, page_h = letter
+    margin = args.margin * inch
+    gutter = args.gutter * inch
+    rows, cols = args.rows, args.cols
+
+    usable_w = page_w - 2 * margin
+    usable_h = page_h - 2 * margin
+    card_w = (usable_w - (cols - 1) * gutter) / cols
+    card_h = (usable_h - (rows - 1) * gutter) / rows
+
+    canvas = Canvas(str(args.output), pagesize=letter)
+
+    fonts = ("Helvetica", "Helvetica", "Helvetica-Bold")
+    sizes = (args.title_size, args.body_size)
+
+    for page_cards in paginate(cards, rows, cols):
+        draw_cut_guides(canvas, page_w, page_h, margin, gutter, cols, rows)
+        # Draw in reading order: top-left to bottom-right
+        for i, card in enumerate(page_cards):
+            r = i // cols
+            c = i % cols
+            # Convert to "top-left origin" for rows
+            x = margin + c * (card_w + gutter)
+            # from top down: row 0 is top
+            y_top_origin = page_h - margin - card_h - r * (card_h + gutter)
+            draw_card(canvas, x, y_top_origin, card_w, card_h, card, fonts, sizes, corner_radius=args.corner)
+        canvas.showPage()
+
+    canvas.save()
+    print(f"Wrote {args.output} with {len(cards)} cards across {len(list(paginate(cards, rows, cols)))} page(s).")
+
+
+if __name__ == "__main__":
+    main()
