@@ -1,0 +1,73 @@
+---
+card_id: echoes-in-the-stone
+title: "Success with Hope — Echoes in the Stone"
+outcome: success_with_hope
+scenario:
+  id: searching-the-birdfolk-temple
+  name: "Searching the Bird-Folk Temple"
+print_layout:
+  sheet: 1
+  grid: "3x3"
+  position:
+    row: 1
+    col: 1
+  slot_label: top-left
+description: >
+  The foundation carvings are far older than the current bird-folk shrine.
+  Half-scrubbed military sigils match the Scars of Verdeth, and one fresh symbol—
+  painted in ash and oil—was left in haste.
+reward: >
+  Gain leverage: proof of the Scars of Verdeth’s involvement, tradable as
+  evidence, rumor, or blackmail in Fort Dendras.
+insight: >
+  The Scars were here recently and wanted their claim noticed; the ash-mark
+  still smolders, signaling an active stake in the site.
+cost:
+---
+card_id: the-uneasy-ground
+title: "Success with Fear — The Uneasy Ground"
+outcome: success_with_fear
+scenario:
+  id: searching-the-birdfolk-temple
+  name: "Searching the Bird-Folk Temple"
+print_layout:
+  sheet: 1
+  grid: "3x3"
+  position:
+    row: 1
+    col: 2
+  slot_label: top-center
+description: >
+  Disturbed soil rings a cracked altar; scraps of cloth and broken restraints
+  litter the floor, a coppery stench hanging in the air. A husk-hand briefly
+  thrusts from the dirt before falling still.
+insight: >
+  The Scars unearthed what should not wake; the Carrion Harvesters stir beneath
+  the stone.
+cost: >
+  Each investigator loses 1 Hope. The husks have scented the living—their rise is
+  only a matter of time.
+---
+card_id: the-abandoned-cache
+title: "Fail with Hope — The Abandoned Cache"
+outcome: fail_with_hope
+scenario:
+  id: searching-the-birdfolk-temple
+  name: "Searching the Bird-Folk Temple"
+print_layout:
+  sheet: 1
+  grid: "3x3"
+  position:
+    row: 1
+    col: 3
+  slot_label: top-right
+description: >
+  A hidden wall niche holds cracked crates bearing the Verdeth seal. A torn
+  parchment lists quantities of “harvest units” beside harsh tally marks.
+reward: >
+  You notice movement early—something is coming—so you are not ambushed.
+consequence: >
+  Your rummaging echoes through the halls, drawing husks or a hostile patrol.
+cost: >
+  Danger escalates as opposition converges on your location; clocks relevant to
+  the Scars or local husk activity advance.
