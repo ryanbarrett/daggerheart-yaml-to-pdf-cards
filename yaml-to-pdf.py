@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Generate a Letter-size PDF with 9 Investigation Cards (3x3 grid).
+Generate a Letter-size PDF with Investigation Cards arranged in a grid (default 3x3).
 
 INPUT:
-  A file containing exactly 3 YAML documents (the output of your Investigation Card Prompt),
+  A file containing one or more YAML documents (the output of your Investigation Card Prompt),
   either as:
     - plain multi-doc YAML separated by '---', OR
     - Markdown with fenced ```yaml code blocks (we'll auto-extract the YAML).
@@ -21,7 +21,7 @@ OPTIONS:
   -o/--output        Output PDF path (default: ./investigation_cards.pdf)
   --rows             Rows per page (default: 3)
   --cols             Columns per page (default: 3)
-  --copies           How many times to replicate the 3-card set (default: 3 → 9 total)
+  --copies           How many times to replicate the full card set (default: 1)
   --margin           Page margin in inches (default: 0.25)
   --gutter           Gutter between cards in inches (default: 0.10)
   --corner           Corner radius in points (default: 10)
@@ -30,9 +30,9 @@ OPTIONS:
 
 NOTES:
   - If you provide more than (rows*cols) cards after replication, the script will paginate.
-  - If you provide fewer than 3 cards, the script will cycle through to fill.
+  - If you provide fewer cards than fit on a page, the remaining slots will be blank.
 
-Example YAML document (put 3 of these, separated by ---):
+Example YAML document (separate multiple documents with ---):
 
 ---
 title: Success with Hope — Echoes in the Stone
@@ -96,12 +96,6 @@ def load_cards_from_file(path: Path):
         nd.setdefault("insight", "")
         nd.setdefault("cost", "")
         normalized.append(nd)
-
-    # If fewer than 3, cycle to 3
-    if len(normalized) < 3 and len(normalized) > 0:
-        base = normalized.copy()
-        while len(normalized) < 3:
-            normalized.append(base[len(normalized) % len(base)])
 
     return normalized
 
@@ -242,12 +236,12 @@ def paginate(cards, rows, cols):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("input", type=Path, help="Path to YAML/Markdown with 3 card docs")
+    ap.add_argument("input", type=Path, help="Path to YAML/Markdown with card docs")
     ap.add_argument("-o", "--output", type=Path, default=Path("investigation_cards.pdf"))
     ap.add_argument("--rows", type=int, default=3)
     ap.add_argument("--cols", type=int, default=3)
-    ap.add_argument("--copies", type=int, default=3,
-                    help="Replicate the 3-card set this many times (default 3 → 9 total)")
+    ap.add_argument("--copies", type=int, default=1,
+                    help="Replicate the full card set this many times")
     ap.add_argument("--margin", type=float, default=0.25, help="Page margin in inches")
     ap.add_argument("--gutter", type=float, default=0.10, help="Gutter between cards in inches")
     ap.add_argument("--corner", type=float, default=10, help="Corner radius in points")
@@ -257,10 +251,10 @@ def main():
 
     base_cards = load_cards_from_file(args.input)
     if not base_cards:
-        print("No cards parsed. Make sure your file contains 3 YAML documents.", file=sys.stderr)
+        print("No cards parsed. Make sure your file contains valid YAML documents.", file=sys.stderr)
         sys.exit(1)
 
-    # Replicate the 3 cards N times to fill the sheet(s)
+    # Replicate the cards N times to fill the sheet(s)
     cards = []
     for _ in range(max(1, args.copies)):
         cards.extend(base_cards)
