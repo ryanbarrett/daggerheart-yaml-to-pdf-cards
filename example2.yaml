@@ -1,0 +1,124 @@
+---
+card_id: echoes-in-the-stone
+title: "Echoes in the Stone - Success with Hope"
+outcome: success_with_hope
+scenario: searching-the-birdfolk-temple
+print_layout: {sheet: 1, row: 1, col: 1, slot_label: top-left}
+description: >
+  The foundation carvings are older than the current bird-folk shrine.
+  Military sigils half-scrubbed away match the Scars of Verdeth.
+  One symbol is fresh, painted in ash and oil, left in haste.
+reward: >
+  Gain leverage: proof of the Scars’ recent occupation, tradable in Fort Dendras.
+insight: >
+  The Scars wanted their claim noticed; the ash-mark still smolders.
+cost:
+---
+card_id: uneasy-ground
+title: "The Uneasy Ground - Success with Fear"
+outcome: success_with_fear
+scenario: searching-the-birdfolk-temple
+print_layout: {sheet: 1, row: 1, col: 2, slot_label: top-center}
+description: >
+  Disturbed soil surrounds a cracked altar, scraps of cloth and restraints strewn.
+  A husk-hand juts briefly from the dirt before falling still.
+insight: >
+  The Carrion Harvesters stir beneath the stone, awakened by desecration.
+cost: >
+  Each investigator loses 1 Hope. The husks have scented the living.
+---
+card_id: abandoned-cache
+title: "The Abandoned Cache - Fail with Hope"
+outcome: fail_with_hope
+scenario: searching-the-birdfolk-temple
+print_layout: {sheet: 1, row: 1, col: 3, slot_label: top-right}
+description: >
+  A hidden wall niche holds cracked crates with Verdeth seals. A torn parchment
+  lists “harvest units” in tally.
+reward: >
+  You notice movement early — you are not ambushed.
+consequence: >
+  Your rummaging echoes, drawing husks or hostile patrols.
+cost: >
+  Danger escalates; relevant faction or husk clocks advance.
+---
+card_id: rot-slick-path
+title: "Rot-Slick Path - Success with Fear"
+outcome: success_with_fear
+scenario: deepwood-exploration
+print_layout: {sheet: 1, row: 2, col: 1, slot_label: middle-left}
+description: >
+  A trail is coated in fungal rot that clings to boots and skin. The air burns
+  with spores.
+insight: >
+  The Deepwood resists passage, reshaping itself through corruption.
+cost: >
+  Risk infection or lose time bushwhacking; each choice advances a clock.
+---
+card_id: warning-glyphs
+title: "Ancient Warning Glyphs - Success with Hope"
+outcome: success_with_hope
+scenario: deepwood-exploration
+print_layout: {sheet: 1, row: 2, col: 2, slot_label: middle-center}
+description: >
+  Symbols appear on trees in a perfect line — and shift when watched.
+reward: >
+  Knowledge: they align with safe paths once walked by Thornbound ancestors.
+insight: >
+  The forest remembers, but it also watches you back.
+cost:
+---
+card_id: echo-of-party
+title: "Echo of a Previous Party - Fail with Hope"
+outcome: fail_with_hope
+scenario: deepwood-exploration
+print_layout: {sheet: 1, row: 2, col: 3, slot_label: middle-right}
+description: >
+  You find remnants of a previous expedition: gear, a journal, and a still-warm
+  campfire.
+reward: >
+  The journal offers tactical insight into hazards ahead.
+consequence: >
+  Survivors — or echoes of them — are near, and may not be friendly.
+cost: >
+  A rival faction’s presence escalates in the area.
+---
+card_id: glass-lake
+title: "The Glass Lake - Success with Hope"
+outcome: success_with_hope
+scenario: deepwood-rumors
+print_layout: {sheet: 1, row: 3, col: 1, slot_label: bottom-left}
+description: >
+  A still lake reflects a ruined city that isn’t truly there — but can be entered
+  through its surface.
+reward: >
+  Potential access to forgotten relics or knowledge.
+insight: >
+  It may be a memory, a trap, or a gate. The choice to step in shapes fate.
+cost:
+---
+card_id: stalking-voices
+title: "Stalking Voices - Success with Fear"
+outcome: success_with_fear
+scenario: deepwood-rumors
+print_layout: {sheet: 1, row: 3, col: 2, slot_label: bottom-center}
+description: >
+  Something stalks Thornbound, using their voices to lure others deeper.
+insight: >
+  A predator has learned your names. Answering its call invites peril.
+cost: >
+  Lose 1 Hope when responding to a familiar voice; the thing draws closer.
+---
+card_id: bleeding-tree
+title: "The Bleeding Tree - Fail with Hope"
+outcome: fail_with_hope
+scenario: deepwood-rumors
+print_layout: {sheet: 1, row: 3, col: 3, slot_label: bottom-right}
+description: >
+  A tree bleeds when cut — and whispers your name.
+reward: >
+  Early warning: the tree’s voice hints at nearby danger.
+consequence: >
+  Its blood stains you; the Deepwood spirits now know your scent.
+cost: >
+  Corruption or faction suspicion advances as the rumor spreads.
