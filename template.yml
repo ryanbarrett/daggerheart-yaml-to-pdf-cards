@@ -1,0 +1,152 @@
+---
+card_id: {{unique-card-id-1}}
+title: "{{Card Title}}"
+outcome: {{outcome-type}}
+scenario: {{scenario-id}}
+print_layout: {sheet: 1, row: 1, col: 1, slot_label: top-left}
+description: >
+  {{Detailed narrative description of what happens when this card is used.}}
+reward: >
+  {{Optional. Tangible benefit or leverage gained by the players.}}
+insight: >
+  {{Optional. The meaning, omen, or thematic insight revealed.}}
+consequence: >
+  {{Optional. A downside or ripple effect beyond the immediate moment.}}
+cost: >
+  {{Optional. Mechanical or narrative cost.}}
+
+---
+card_id: {{unique-card-id-2}}
+title: "{{Card Title}}"
+outcome: {{outcome-type}}
+scenario: {{scenario-id}}
+print_layout: {sheet: 1, row: 1, col: 2, slot_label: top-center}
+description: >
+  {{Detailed narrative description of what happens when this card is used.}}
+reward: >
+  {{Optional. Tangible benefit or leverage gained by the players.}}
+insight: >
+  {{Optional. The meaning, omen, or thematic insight revealed.}}
+consequence: >
+  {{Optional. A downside or ripple effect beyond the immediate moment.}}
+cost: >
+  {{Optional. Mechanical or narrative cost.}}
+
+---
+card_id: {{unique-card-id-3}}
+title: "{{Card Title}}"
+outcome: {{outcome-type}}
+scenario: {{scenario-id}}
+print_layout: {sheet: 1, row: 1, col: 3, slot_label: top-right}
+description: >
+  {{Detailed narrative description of what happens when this card is used.}}
+reward: >
+  {{Optional. Tangible benefit or leverage gained by the players.}}
+insight: >
+  {{Optional. The meaning, omen, or thematic insight revealed.}}
+consequence: >
+  {{Optional. A downside or ripple effect beyond the immediate moment.}}
+cost: >
+  {{Optional. Mechanical or narrative cost.}}
+
+---
+card_id: {{unique-card-id-4}}
+title: "{{Card Title}}"
+outcome: {{outcome-type}}
+scenario: {{scenario-id}}
+print_layout: {sheet: 1, row: 2, col: 1, slot_label: middle-left}
+description: >
+  {{Detailed narrative description of what happens when this card is used.}}
+reward: >
+  {{Optional. Tangible benefit or leverage gained by the players.}}
+insight: >
+  {{Optional. The meaning, omen, or thematic insight revealed.}}
+consequence: >
+  {{Optional. A downside or ripple effect beyond the immediate moment.}}
+cost: >
+  {{Optional. Mechanical or narrative cost.}}
+
+---
+card_id: {{unique-card-id-5}}
+title: "{{Card Title}}"
+outcome: {{outcome-type}}
+scenario: {{scenario-id}}
+print_layout: {sheet: 1, row: 2, col: 2, slot_label: middle-center}
+description: >
+  {{Detailed narrative description of what happens when this card is used.}}
+reward: >
+  {{Optional. Tangible benefit or leverage gained by the players.}}
+insight: >
+  {{Optional. The meaning, omen, or thematic insight revealed.}}
+consequence: >
+  {{Optional. A downside or ripple effect beyond the immediate moment.}}
+cost: >
+  {{Optional. Mechanical or narrative cost.}}
+
+---
+card_id: {{unique-card-id-6}}
+title: "{{Card Title}}"
+outcome: {{outcome-type}}
+scenario: {{scenario-id}}
+print_layout: {sheet: 1, row: 2, col: 3, slot_label: middle-right}
+description: >
+  {{Detailed narrative description of what happens when this card is used.}}
+reward: >
+  {{Optional. Tangible benefit or leverage gained by the players.}}
+insight: >
+  {{Optional. The meaning, omen, or thematic insight revealed.}}
+consequence: >
+  {{Optional. A downside or ripple effect beyond the immediate moment.}}
+cost: >
+  {{Optional. Mechanical or narrative cost.}}
+
+---
+card_id: {{unique-card-id-7}}
+title: "{{Card Title}}"
+outcome: {{outcome-type}}
+scenario: {{scenario-id}}
+print_layout: {sheet: 1, row: 3, col: 1, slot_label: bottom-left}
+description: >
+  {{Detailed narrative description of what happens when this card is used.}}
+reward: >
+  {{Optional. Tangible benefit or leverage gained by the players.}}
+insight: >
+  {{Optional. The meaning, omen, or thematic insight revealed.}}
+consequence: >
+  {{Optional. A downside or ripple effect beyond the immediate moment.}}
+cost: >
+  {{Optional. Mechanical or narrative cost.}}
+
+---
+card_id: {{unique-card-id-8}}
+title: "{{Card Title}}"
+outcome: {{outcome-type}}
+scenario: {{scenario-id}}
+print_layout: {sheet: 1, row: 3, col: 2, slot_label: bottom-center}
+description: >
+  {{Detailed narrative description of what happens when this card is used.}}
+reward: >
+  {{Optional. Tangible benefit or leverage gained by the players.}}
+insight: >
+  {{Optional. The meaning, omen, or thematic insight revealed.}}
+consequence: >
+  {{Optional. A downside or ripple effect beyond the immediate moment.}}
+cost: >
+  {{Optional. Mechanical or narrative cost.}}
+
+---
+card_id: {{unique-card-id-9}}
+title: "{{Card Title}}"
+outcome: {{outcome-type}}
+scenario: {{scenario-id}}
+print_layout: {sheet: 1, row: 3, col: 3, slot_label: bottom-right}
+description: >
+  {{Detailed narrative description of what happens when this card is used.}}
+reward: >
+  {{Optional. Tangible benefit or leverage gained by the players.}}
+insight: >
+  {{Optional. The meaning, omen, or thematic insight revealed.}}
+consequence: >
+  {{Optional. A downside or ripple effect beyond the immediate moment.}}
+cost: >
+  {{Optional. Mechanical or narrative cost.}}
