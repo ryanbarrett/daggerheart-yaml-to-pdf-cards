@@ -17,7 +17,7 @@ docker build -t yaml-to-pdf .
 Mount a directory containing your YAML file and specify input and output paths inside the container:
 
 ```bash
-docker run --rm -v $(pwd):/data yaml-to-pdf /data/example.yaml -o /data/output.pdf
+docker run --rm -v $(pwd)/data:/data yaml-to-pdf /data/example.yaml -o /data/output.pdf
 ```
 
 Replace `/data/example.yaml` with your input file and `/data/output.pdf` with the desired output path. The generated PDF will appear in your local directory because it is mounted into the container at `/data`.
