@@ -182,11 +182,14 @@ def draw_card(canvas: Canvas, x, y, w, h, card, fonts, sizes, corner_radius=10):
     canvas.setFont(title_font, title_size)
     title = card.get("title", "Untitled")
     # Slight bold highlight if it includes an outcome prefix
-    canvas.setFont(bold_font if "—" in title or "-" in title else title_font, title_size)
-    title_lines = wrap_paragraph(title, bold_font, title_size, inner_w)
-    for line in title_lines:
-        cursor_y -= title_size * 1.2
-        canvas.drawString(inner_x, cursor_y, line)
+    title_font_name = bold_font if "—" in title or "-" in title else title_font
+    canvas.setFont(title_font_name, title_size)
+    title_parts = [seg.strip() for seg in title.split(" - ")]
+    for part in title_parts:
+        lines = wrap_paragraph(part, title_font_name, title_size, inner_w)
+        for line in lines:
+            cursor_y -= title_size * 1.2
+            canvas.drawString(inner_x, cursor_y, line)
 
     # Thin divider
     cursor_y -= 4
