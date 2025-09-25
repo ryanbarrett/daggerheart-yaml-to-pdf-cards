@@ -74,7 +74,24 @@ REQUIRED_FIELDS = {
     "outcome",
 }
 
-TEXT_FIELDS = {"title", "description", "reward", "insight", "cost"}
+# Fields that should be normalised into display strings. This includes the
+# common descriptive sections that appear on most cards so that lists/dicts
+# render predictably when drawn on the PDF.
+TEXT_FIELDS = {
+    "title",
+    "description",
+    "reward",
+    "insight",
+    "cost",
+    "features",
+    "exits",
+    "secret_door",
+    "encounter_hooks",
+    "traps_hazards",
+    "loot",
+    "clue_threads",
+}
+
 
 
 def _stringify_text(value):
@@ -84,10 +101,33 @@ def _stringify_text(value):
         return ""
     if isinstance(value, str):
         return value.strip()
-    # For non-string types (lists, dicts, numbers) fall back to YAML dump to
-    # preserve readable structure.
-    dumped = yaml.safe_dump(value, sort_keys=False).strip()
-    return dumped
+
+    if isinstance(value, list):
+        lines = []
+        for item in value:
+            item_text = _stringify_text(item)
+            if not item_text:
+                continue
+            item_lines = item_text.split("\n")
+            bullet = f"• {item_lines[0]}"
+            lines.append(bullet)
+            for extra in item_lines[1:]:
+                lines.append(f"  {extra}")
+        return "\n".join(lines).strip()
+    if isinstance(value, dict):
+        lines = []
+        for key, val in value.items():
+            key = str(key)
+            val_text = _stringify_text(val)
+            if val_text:
+                val_lines = val_text.split("\n")
+                lines.append(f"{key}: {val_lines[0]}")
+                for extra in val_lines[1:]:
+                    lines.append(f"  {extra}")
+            else:
+                lines.append(f"{key}:")
+        return "\n".join(lines).strip()
+    return str(value).strip()
 
 
 def _has_required_value(card, field):
@@ -189,23 +229,35 @@ def draw_cut_guides(canvas: Canvas, page_w, page_h, margin, gutter, cols, rows):
 def wrap_paragraph(text, font_name, font_size, max_width):
     """
     Wrap text to a given pixel width using ReportLab's stringWidth for accuracy.
+    Respects existing newline breaks so that bullet lists and multi-line values
+    keep their structure.
     """
     if not text:
         return []
-    words = text.replace("\r", "").split()
-    lines = []
-    line = ""
-    for w in words:
-        trial = (line + " " + w).strip()
-        if stringWidth(trial, font_name, font_size) <= max_width:
-            line = trial
-        else:
-            if line:
-                lines.append(line)
-            line = w
-    if line:
-        lines.append(line)
-    return lines
+
+    paragraphs = text.replace("\r", "").split("\n")
+    wrapped_lines = []
+
+    for para in paragraphs:
+        if not para.strip():
+            # Preserve deliberate blank lines as spacing markers.
+            wrapped_lines.append("")
+            continue
+
+        words = para.split()
+        line = ""
+        for w in words:
+            trial = (line + " " + w).strip()
+            if stringWidth(trial, font_name, font_size) <= max_width:
+                line = trial
+            else:
+                if line:
+                    wrapped_lines.append(line)
+                line = w
+        if line:
+            wrapped_lines.append(line)
+
+    return wrapped_lines
 
 
 def draw_card(canvas: Canvas, x, y, w, h, card, fonts, sizes, corner_radius=10):
@@ -256,6 +308,13 @@ def draw_card(canvas: Canvas, x, y, w, h, card, fonts, sizes, corner_radius=10):
     # Body sections in a consistent order
     sections = [
         ("description", "Description"),
+        ("features", "Features"),
+        ("exits", "Exits"),
+        ("secret_door", "Secret Door"),
+        ("encounter_hooks", "Encounter Hooks"),
+        ("traps_hazards", "Traps & Hazards"),
+        ("loot", "Loot"),
+        ("clue_threads", "Clue Threads"),
         ("reward", "Reward"),
         ("insight", "Insight"),
         ("cost", "Cost"),
@@ -283,6 +342,9 @@ def draw_card(canvas: Canvas, x, y, w, h, card, fonts, sizes, corner_radius=10):
                 ell_w = stringWidth(ell, body_font, body_size)
                 canvas.drawString(inner_x, inner_y + body_size, ell)
                 return
+            if not ln:
+                # Blank spacer line for readability
+                continue
             canvas.drawString(inner_x, cursor_y, ln)
 
 

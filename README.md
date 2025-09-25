@@ -14,9 +14,20 @@ fields are required for every card:
 - `scenario`
 - `outcome`
 
-Other fields are optional. Any additional keys that appear in the document will
-be preserved when parsing, allowing you to include campaign-specific metadata
-alongside the required sections.
+Other fields are optional. Common sections that the PDF renderer knows how to
+display include:
+
+- `features`
+- `exits`
+- `secret_door`
+- `encounter_hooks`
+- `traps_hazards`
+- `loot`
+- `clue_threads`
+
+Any additional keys that appear in the document will be preserved when parsing,
+allowing you to include campaign-specific metadata alongside the required
+sections.
 
 ## Docker Image
 
