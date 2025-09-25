@@ -65,6 +65,45 @@ from reportlab.pdfbase.pdfmetrics import stringWidth
 
 FENCE_RE = re.compile(r"```(?:yaml)?\s*(.*?)```", re.DOTALL | re.IGNORECASE)
 
+REQUIRED_FIELDS = {
+    "card_id",
+    "title",
+    "description",
+    "print_layout",
+    "scenario",
+    "outcome",
+}
+
+TEXT_FIELDS = {"title", "description", "reward", "insight", "cost"}
+
+
+def _stringify_text(value):
+    """Convert card text fields into trimmed display strings."""
+
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        return value.strip()
+    # For non-string types (lists, dicts, numbers) fall back to YAML dump to
+    # preserve readable structure.
+    dumped = yaml.safe_dump(value, sort_keys=False).strip()
+    return dumped
+
+
+def _has_required_value(card, field):
+    """Return True if the field is present and non-empty for required keys."""
+
+    if field not in card:
+        return False
+    value = card[field]
+    if value is None:
+        return False
+    if isinstance(value, str):
+        return value.strip() != ""
+    if isinstance(value, (list, tuple, dict)):
+        return bool(value)
+    return True
+
 def load_cards_from_file(path: Path):
     text = path.read_text(encoding="utf-8")
 
@@ -80,21 +119,37 @@ def load_cards_from_file(path: Path):
 
     # Normalize keys and ensure fields exist
     normalized = []
-    for d in docs:
+    for index, d in enumerate(docs, start=1):
+        if not isinstance(d, dict):
+            raise ValueError(f"Document #{index} is not a mapping and cannot be used as a card definition.")
+
         nd = {}
         for k, v in d.items():
             if k is None:
                 continue
             key = str(k).strip().lower()
-            nd[key] = "" if v is None else str(v).strip()
+            nd[key] = v
+
         # Allow either 'insight' or 'consequence'
         if "insight" not in nd and "consequence" in nd:
             nd["insight"] = nd["consequence"]
-        nd.setdefault("title", "Untitled")
-        nd.setdefault("description", "")
-        nd.setdefault("reward", "")
-        nd.setdefault("insight", "")
-        nd.setdefault("cost", "")
+
+        missing = [field for field in REQUIRED_FIELDS if not _has_required_value(nd, field)]
+        if missing:
+            missing_list = ", ".join(sorted(missing))
+            raise ValueError(
+                f"Document #{index} is missing required field(s): {missing_list}."
+            )
+
+        # Normalise types for commonly displayed text fields.
+        nd["card_id"] = _stringify_text(nd.get("card_id"))
+        nd["title"] = _stringify_text(nd.get("title"))
+        nd["description"] = _stringify_text(nd.get("description"))
+        nd["outcome"] = _stringify_text(nd.get("outcome"))
+
+        for field in TEXT_FIELDS - {"title", "description"}:
+            nd[field] = _stringify_text(nd.get(field, ""))
+
         normalized.append(nd)
 
     return normalized
@@ -252,7 +307,11 @@ def main():
     ap.add_argument("--body-size", type=int, default=9)
     args = ap.parse_args()
 
-    base_cards = load_cards_from_file(args.input)
+    try:
+        base_cards = load_cards_from_file(args.input)
+    except ValueError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        sys.exit(1)
     if not base_cards:
         print("No cards parsed. Make sure your file contains valid YAML documents.", file=sys.stderr)
         sys.exit(1)
