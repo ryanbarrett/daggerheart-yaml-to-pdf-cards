@@ -2,6 +2,33 @@
 
 This repository contains `yaml-to-pdf.py`, a script that converts YAML card definitions into a printable PDF sheet.
 
+## Card Format Requirements
+
+Each YAML document in the input file must define a single card. The following
+fields are required for every card:
+
+- `card_id`
+- `title`
+- `description`
+- `print_layout`
+- `scenario`
+- `outcome`
+
+Other fields are optional. Common sections that the PDF renderer knows how to
+display include:
+
+- `features`
+- `exits`
+- `secret_door`
+- `encounter_hooks`
+- `traps_hazards`
+- `loot`
+- `clue_threads`
+
+Any additional keys that appear in the document will be preserved when parsing,
+allowing you to include campaign-specific metadata alongside the required
+sections.
+
 ## Docker Image
 
 A `Dockerfile` is provided to run the script in a containerized environment.
