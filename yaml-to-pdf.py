@@ -93,6 +93,7 @@ TEXT_FIELDS = {
 }
 
 
+
 def _stringify_text(value):
     """Convert card text fields into trimmed display strings."""
 
@@ -100,6 +101,7 @@ def _stringify_text(value):
         return ""
     if isinstance(value, str):
         return value.strip()
+
     if isinstance(value, list):
         lines = []
         for item in value:
